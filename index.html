@@ -10,7 +10,7 @@
     body {
       margin: 0;
       padding: 12px;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: #f8fafc;
       color: #334155;
       user-select: none;
@@ -18,30 +18,32 @@
     .layout-wrapper {
       display: flex;
       flex-direction: row;
-      gap: 12px;
-      height: 520px;
+      gap: 16px;
+      height: calc(100vh - 80px);
+      min-height: 540px;
     }
     .sidebar {
-      width: 270px;
-      min-width: 270px;
+      width: 290px;
+      min-width: 290px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       overflow-y: auto;
     }
     .main-workspace {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
     .canvas-container {
       flex: 1;
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      border-radius: 12px;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
     }
     canvas {
       width: 100%;
@@ -49,14 +51,29 @@
       display: block;
       cursor: pointer;
     }
+    @media (max-width: 768px) {
+      .layout-wrapper {
+        flex-direction: column;
+        height: auto;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+      }
+      .canvas-container {
+        height: 420px;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- Top Navigation & Tabs -->
-  <div class="flex items-center justify-between mb-2 bg-white p-2 rounded-lg border border-slate-200">
-    <div id="tabs-container" class="flex gap-2"></div>
-    <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">Low-Stress Mode</span>
+  <div class="flex items-center justify-between mb-3 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+    <div id="tabs-container" class="flex flex-wrap gap-2"></div>
+    <span class="text-xs font-semibold px-3 py-1 bg-sky-50 text-sky-700 rounded-full border border-sky-100 hidden sm:inline-block">
+      🎮 Interactive Learning
+    </span>
   </div>
 
   <!-- Main Side-by-Side Layout -->
@@ -66,30 +83,34 @@
     <div class="sidebar">
       
       <!-- Info Header -->
-      <div class="bg-white p-3 rounded-lg border border-slate-200">
-        <div class="flex justify-between items-center mb-1">
-          <span id="level-badge" class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">Level 1 of 4</span>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-center mb-1.5">
+          <span id="level-badge" class="text-xs font-bold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">Level 1 of 4</span>
           <span class="text-xs text-slate-400">Take your time</span>
         </div>
         <h2 id="topo-title" class="text-base font-bold text-slate-800">--</h2>
-        <p id="topo-desc" class="text-xs text-slate-600 mt-1 leading-snug">--</p>
+        <p id="topo-desc" class="text-xs text-slate-600 mt-1 leading-relaxed">--</p>
       </div>
 
       <!-- Checklist -->
-      <div class="bg-white p-3 rounded-lg border border-slate-200">
-        <div class="text-xs font-bold text-slate-500 uppercase mb-2">📋 Tasks Checklist</div>
-        <ul id="task-list" class="space-y-1.5 text-xs"></ul>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">📋 Tasks Checklist</div>
+        <ul id="task-list" class="space-y-2 text-xs"></ul>
       </div>
 
-      <!-- Hint -->
-      <div class="bg-sky-50 border border-sky-200 text-sky-800 p-2.5 rounded-lg text-xs">
-        💡 <strong>How to connect:</strong> Click one device, then click another to attach a cable.
+      <!-- Interactive Mode Hint -->
+      <div id="mode-hint" class="bg-sky-50 border border-sky-200 text-sky-800 p-3 rounded-xl text-xs flex items-start gap-2 shadow-sm transition-all">
+        <span class="text-base leading-none">💡</span>
+        <div>
+          <strong id="hint-title" class="block font-semibold mb-0.5">How to connect cables:</strong>
+          <span id="hint-desc">Click on any device node, then click another device node to lay a cable between them.</span>
+        </div>
       </div>
 
       <!-- Facts -->
-      <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-1">
-        <div class="font-bold text-slate-700">📖 Topology Facts</div>
-        <p><strong>Key Fact:</strong> <span id="fact-key" class="text-slate-600">--</span></p>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm text-xs space-y-1.5">
+        <div class="font-bold text-slate-700 border-b border-slate-100 pb-1">📖 Topology Facts</div>
+        <p><strong class="text-slate-700">Key Fact:</strong> <span id="fact-key" class="text-slate-600">--</span></p>
         <p><strong class="text-emerald-700">Pro:</strong> <span id="fact-pro" class="text-slate-600">--</span></p>
         <p><strong class="text-rose-700">Con:</strong> <span id="fact-con" class="text-slate-600">--</span></p>
       </div>
@@ -100,21 +121,21 @@
     <div class="main-workspace">
       
       <!-- Top Action Controls -->
-      <div class="flex justify-between items-center gap-2">
+      <div class="flex flex-wrap justify-between items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
         <div class="flex gap-2">
-          <button id="btn-check" class="bg-sky-700 hover:bg-sky-800 text-white text-xs font-semibold px-3 py-1.5 rounded shadow-sm">
-            ✓ Check My Network
+          <button id="btn-check" class="bg-sky-700 hover:bg-sky-800 active:scale-95 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm transition-all flex items-center gap-1.5">
+            <span>✓</span> Check My Network
           </button>
-          <button id="btn-sim" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded shadow-sm">
-            ✈ Simulate Packets
+          <button id="btn-sim" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm transition-all flex items-center gap-1.5">
+            <span>🚀</span> Simulate Packets
           </button>
         </div>
         <div class="flex gap-2">
-          <button id="btn-remove" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold px-2.5 py-1.5 rounded">
-            ✂ Remove Cables
+          <button id="btn-remove" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition-all flex items-center gap-1.5">
+            <span>✂️</span> <span id="remove-btn-text">Remove Cables</span>
           </button>
-          <button id="btn-reset" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-2.5 py-1.5 rounded">
-            ↺ Reset
+          <button id="btn-reset" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-2 rounded-lg transition-all flex items-center gap-1">
+            <span>↺</span> Reset
           </button>
         </div>
       </div>
@@ -122,7 +143,7 @@
       <!-- Canvas Box -->
       <div class="canvas-container" id="canvas-holder">
         <canvas id="networkCanvas"></canvas>
-        <div id="toast" class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded text-xs font-bold shadow-md hidden"></div>
+        <div id="toast" class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-xs font-bold shadow-lg transition-all opacity-0 pointer-events-none transform translate-y-2"></div>
       </div>
 
     </div>
@@ -132,10 +153,10 @@
     const levels = [
       {
         title: 'Star Topology',
-        desc: 'Every device connects directly to a central Switch. If one cable breaks, other devices stay online!',
-        keyFact: 'Used in almost all modern schools and home Wi-Fi routers.',
-        pro: 'Easy to add new computers without stopping the network.',
-        con: 'If the central switch breaks, the entire network stops working.',
+        desc: 'Every device connects directly to a central Switch. If one cable breaks, all other devices stay online!',
+        keyFact: 'Used in almost all modern schools, offices, and home Wi-Fi routers.',
+        pro: 'Easy to connect new devices without interrupting the whole network.',
+        con: 'If the central Switch breaks, the entire network goes down.',
         nodes: [
           { id: 'sw', label: 'Central Switch', type: 'switch', x: 0.5, y: 0.5 },
           { id: 'a', label: 'Computer A', type: 'pc', x: 0.22, y: 0.22 },
@@ -144,31 +165,42 @@
           { id: 'd', label: 'Computer D', type: 'pc', x: 0.78, y: 0.78 }
         ],
         required: [['sw','a'], ['sw','b'], ['sw','c'], ['sw','d']],
-        tasks: ['Connect Computer A to Switch', 'Connect Computer B to Switch', 'Connect Computer C to Switch', 'Connect Computer D to Switch']
+        tasks: [
+          'Connect Computer A to Switch',
+          'Connect Computer B to Switch',
+          'Connect Computer C to Switch',
+          'Connect Computer D to Switch'
+        ]
       },
       {
         title: 'Bus Topology',
-        desc: 'All devices connect to one main Central Cable (backbone). Data travels along this single wire.',
-        keyFact: 'Common in early computer networks because it was cheap.',
-        pro: 'Requires very little wiring compared to other topologies.',
-        con: 'If the main backbone cable breaks, all computers lose connection.',
+        desc: 'All devices attach to a single main Central Backbone cable. Data travels along this shared line.',
+        keyFact: 'Popular in early Ethernet setups because it required minimal cabling.',
+        pro: 'Inexpensive and easy to install for small temporary networks.',
+        con: 'If the central backbone cable breaks or disconnects, the entire network fails.',
         nodes: [
-          { id: 'b1', label: 'Start Cable', type: 'backbone', x: 0.15, y: 0.5 },
-          { id: 'b2', label: 'End Cable', type: 'backbone', x: 0.85, y: 0.5 },
+          { id: 'b1', label: 'Bus Start', type: 'backbone', x: 0.15, y: 0.5 },
+          { id: 'b2', label: 'Bus End', type: 'backbone', x: 0.85, y: 0.5 },
           { id: 'a', label: 'Computer A', type: 'pc', x: 0.3, y: 0.22 },
           { id: 'b', label: 'Computer B', type: 'pc', x: 0.7, y: 0.22 },
           { id: 'c', label: 'Computer C', type: 'pc', x: 0.3, y: 0.78 },
           { id: 'd', label: 'Computer D', type: 'pc', x: 0.7, y: 0.78 }
         ],
         required: [['b1','b2'], ['a','b1'], ['b','b1'], ['c','b1'], ['d','b1']],
-        tasks: ['Connect Cable Start to End', 'Connect Computer A to Main Cable', 'Connect Computer B to Main Cable', 'Connect Computer C to Main Cable', 'Connect Computer D to Main Cable']
+        tasks: [
+          'Connect Bus Cable Start to End',
+          'Connect Computer A to Main Cable',
+          'Connect Computer B to Main Cable',
+          'Connect Computer C to Main Cable',
+          'Connect Computer D to Main Cable'
+        ]
       },
       {
         title: 'Ring Topology',
-        desc: 'Each device connects to exactly TWO neighbors, forming a closed loop. Data travels in one direction.',
-        keyFact: 'Data travels in tokens so devices don’t send data at the exact same time.',
-        pro: 'Handles high data traffic without network collisions.',
-        con: 'If any single wire or computer fails, the entire ring goes down.',
+        desc: 'Each device connects to exactly TWO neighboring devices, forming a closed ring loop.',
+        keyFact: 'Data travels in a token-passing mechanism around the ring to prevent collisions.',
+        pro: 'Handles high network traffic consistently without packet collisions.',
+        con: 'A single cut cable or broken workstation breaks the entire ring.',
         nodes: [
           { id: 'a', label: 'Node A', type: 'pc', x: 0.5, y: 0.18 },
           { id: 'b', label: 'Node B', type: 'pc', x: 0.82, y: 0.5 },
@@ -176,14 +208,19 @@
           { id: 'd', label: 'Node D', type: 'pc', x: 0.18, y: 0.5 }
         ],
         required: [['a','b'], ['b','c'], ['c','d'], ['d','a']],
-        tasks: ['Connect Node A to B', 'Connect Node B to C', 'Connect Node C to D', 'Connect Node D to A']
+        tasks: [
+          'Connect Node A to Node B',
+          'Connect Node B to Node C',
+          'Connect Node C to Node D',
+          'Connect Node D to Node A'
+        ]
       },
       {
         title: 'Mesh Topology',
-        desc: 'Every device connects directly to EVERY other device, creating lots of backup routes (redundancy).',
-        keyFact: 'Used in high-security systems like airports and nuclear power stations.',
-        pro: 'Super reliable! If one wire breaks, data immediately takes another path.',
-        con: 'Extremely expensive due to the large amount of cabling needed.',
+        desc: 'Every device links directly to EVERY other device, offering maximum redundant backup routes.',
+        keyFact: 'Crucial for high-security environments like financial hubs, power grids, and military systems.',
+        pro: 'Extremely fault-tolerant. If one cable fails, data instantly reroutes.',
+        con: 'Very expensive and complex to install due to the huge amount of cabling.',
         nodes: [
           { id: 'a', label: 'Server A', type: 'pc', x: 0.25, y: 0.25 },
           { id: 'b', label: 'Server B', type: 'pc', x: 0.75, y: 0.25 },
@@ -191,7 +228,14 @@
           { id: 'd', label: 'Server D', type: 'pc', x: 0.25, y: 0.75 }
         ],
         required: [['a','b'], ['a','c'], ['a','d'], ['b','c'], ['b','d'], ['c','d']],
-        tasks: ['Connect Server A to B, C, and D', 'Connect Server B to C and D', 'Connect Server C to D']
+        tasks: [
+          'Connect Server A to Server B',
+          'Connect Server A to Server C',
+          'Connect Server A to Server D',
+          'Connect Server B to Server C',
+          'Connect Server B to Server D',
+          'Connect Server C to Server D'
+        ]
       }
     ];
 
@@ -200,13 +244,16 @@
     let selectedId = null;
     let removeMode = false;
     let packets = [];
+    let isSimulating = false;
     let animId = null;
+    let toastTimeout = null;
 
     const canvas = document.getElementById('networkCanvas');
     const ctx = canvas.getContext('2d');
     const holder = document.getElementById('canvas-holder');
 
     function resize() {
+      if (!holder) return;
       canvas.width = holder.clientWidth;
       canvas.height = holder.clientHeight;
       draw();
@@ -219,6 +266,7 @@
       selectedId = null;
       removeMode = false;
       packets = [];
+      isSimulating = false;
       if (animId) cancelAnimationFrame(animId);
 
       const lvl = levels[idx];
@@ -229,6 +277,7 @@
       document.getElementById('fact-pro').innerText = lvl.pro;
       document.getElementById('fact-con').innerText = lvl.con;
 
+      updateRemoveButtonState();
       renderTabs();
       renderTasks();
       hideToast();
@@ -238,29 +287,43 @@
     function renderTabs() {
       const container = document.getElementById('tabs-container');
       container.innerHTML = levels.map((l, i) => `
-        <button onclick="loadLevel(${i})" class="px-3 py-1 text-xs font-bold rounded ${
-          i === activeLevel ? 'bg-sky-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        <button onclick="loadLevel(${i})" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+          i === activeLevel 
+            ? 'bg-sky-700 text-white shadow-sm' 
+            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
         }">${l.title.replace(' Topology','')}</button>
       `).join('');
+    }
+
+    function isConn(id1, id2) {
+      return connections.some(c => (c[0] === id1 && c[1] === id2) || (c[0] === id2 && c[1] === id1));
     }
 
     function renderTasks() {
       const lvl = levels[activeLevel];
       const list = document.getElementById('task-list');
+      
       list.innerHTML = lvl.tasks.map((t, i) => {
         const req = lvl.required[i];
-        const done = req && isConn(req[0], req[1]);
+        let done = false;
+        
+        if (req) {
+          // Bus topology fallback: Allow connecting PCs to either b1 or b2 or main line
+          if (lvl.title.includes('Bus') && (req[0] !== 'b1' || req[1] !== 'b2')) {
+            const pcId = req[0] === 'b1' ? req[1] : req[0];
+            done = isConn(pcId, 'b1') || isConn(pcId, 'b2');
+          } else {
+            done = isConn(req[0], req[1]);
+          }
+        }
+        
         return `
-          <li class="flex items-center gap-1.5 ${done ? 'text-emerald-700 font-semibold' : 'text-slate-600'}">
-            <span>${done ? '✓' : '○'}</span>
-            <span>${t}</span>
+          <li class="flex items-center gap-2 p-1.5 rounded-md transition-colors ${done ? 'bg-emerald-50 text-emerald-800 font-medium' : 'text-slate-600 bg-slate-50'}">
+            <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${done ? 'bg-emerald-600 text-white font-bold' : 'border border-slate-300 text-transparent'}">✓</span>
+            <span class="flex-1">${t}</span>
           </li>
         `;
       }).join('');
-    }
-
-    function isConn(id1, id2) {
-      return connections.some(c => (c[0] === id1 && c[1] === id2) || (c[0] === id2 && c[1] === id1));
     }
 
     function getCoords(n) {
@@ -271,33 +334,386 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const lvl = levels[activeLevel];
 
-      // Draw Bus Line
+      // 1. Draw Bus Backbone Base Line if Bus Topology
       if (lvl.title.includes('Bus')) {
         const b1 = lvl.nodes.find(n => n.id === 'b1');
         const b2 = lvl.nodes.find(n => n.id === 'b2');
         if (b1 && b2) {
           const p1 = getCoords(b1);
           const p2 = getCoords(b2);
+
+          // Base backbone bar
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
-          ctx.lineWidth = 8;
-          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineCap = 'round';
           ctx.stroke();
 
+          // Active backbone connection indicator
           if (isConn('b1', 'b2')) {
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 6;
             ctx.strokeStyle = '#0284c7';
             ctx.stroke();
           }
         }
       }
 
-      // Draw Connections
+      // 2. Draw Installed Cable Connections
       connections.forEach(([i1, i2]) => {
         const n1 = lvl.nodes.find(n => n.id === i1);
         const n2 = lvl.nodes.find(n => n.id === i2);
         if (n1 && n2) {
+          const p1 = getCoords(n1);
+          const p2 = getCoords(n2);
+
+          // For Bus topology: draw connection perpendicular to main line if connecting PC to backbone end
+          let drawP2 = { ...p2 };
+          if (lvl.title.includes('Bus') && (n1.type === 'pc' && n2.type === 'backbone')) {
+            drawP2.x = p1.x; // Drop vertically to backbone height
+            drawP2.y = p2.y;
+          } else if (lvl.title.includes('Bus') && (n2.type === 'pc' && n1.type === 'backbone')) {
+            drawP2.x = p2.x;
+            drawP2.y = p1.y;
+          }
+
+          // Outer Cable Shadow / Glow
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(drawP2.x, drawP2.y);
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = '#0284c722';
+          ctx.stroke();
+
+          // Cable Wire
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(drawP2.x, drawP2.y);
+          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = '#0284c7';
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+      });
+
+      // 3. Draw Animated Simulation Packets
+      if (isSimulating && packets.length > 0) {
+        packets.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#10b981';
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 8;
+          ctx.fill();
+          ctx.shadowBlur = 0; // Reset shadow
+        });
+      }
+
+      // 4. Draw Device Nodes & Labels
+      lvl.nodes.forEach(n => {
+        const { x, y } = getCoords(n);
+        const isSelected = selectedId === n.id;
+
+        // Selected Halo/Pulse
+        if (isSelected) {
+          ctx.beginPath();
+          ctx.arc(x, y, 28, 0, Math.PI * 2);
+          ctx.fillStyle = removeMode ? '#ffe4e6' : '#e0f2fe';
+          ctx.strokeStyle = removeMode ? '#f43f5e' : '#0284c7';
+          ctx.lineWidth = 2.5;
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        // Node Container Circle
+        ctx.beginPath();
+        const radius = n.type === 'backbone' ? 14 : 22;
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        
+        if (n.type === 'switch') {
+          ctx.fillStyle = '#0f172a';
+        } else if (n.type === 'backbone') {
+          ctx.fillStyle = '#475569';
+        } else {
+          ctx.fillStyle = '#ffffff';
+        }
+
+        ctx.strokeStyle = isSelected ? (removeMode ? '#f43f5e' : '#0284c7') : '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 2;
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0; // Reset shadow
+
+        // Render Icons (SVG Paths / Simple Drawings)
+        if (n.type === 'pc') {
+          // Monitor Icon
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x - 10, y - 8, 20, 13);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x - 8, y - 6, 16, 9);
+          // Stand
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(x - 3, y + 5, 6, 4);
+          ctx.fillRect(x - 7, y + 8, 14, 2);
+        } else if (n.type === 'switch') {
+          // Switch Icon
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x - 11, y - 5, 22, 10);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x - 8, y - 2, 4, 4);
+          ctx.fillRect(x - 2, y - 2, 4, 4);
+          ctx.fillRect(x + 4, y - 2, 4, 4);
+        } else if (n.type === 'backbone') {
+          // Bus Cable Cap
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(x - 4, y - 4, 8, 8);
+        }
+
+        // Node Text Labels
+        ctx.font = '600 11px system-ui, sans-serif';
+        ctx.fillStyle = '#334155';
+        ctx.textAlign = 'center';
+        
+        let labelY = y + radius + 15;
+        if (n.y > 0.7) labelY = y - radius - 8; // Prevent overlapping bottom border
+        ctx.fillText(n.label, x, labelY);
+      });
+    }
+
+    function getNodeAt(x, y) {
+      const lvl = levels[activeLevel];
+      return lvl.nodes.find(n => {
+        const p = getCoords(n);
+        const dist = Math.hypot(p.x - x, p.y - y);
+        const touchRadius = n.type === 'backbone' ? 24 : 30;
+        return dist <= touchRadius;
+      });
+    }
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      const clickedNode = getNodeAt(clickX, clickY);
+
+      if (!clickedNode) {
+        selectedId = null;
+        draw();
+        return;
+      }
+
+      if (!selectedId) {
+        // First click: select node
+        selectedId = clickedNode.id;
+        showToast(removeMode ? `Selected ${clickedNode.label}. Click connected node to REMOVE cable.` : `Selected ${clickedNode.label}. Click another device to CONNECT.`, 'info');
+      } else if (selectedId === clickedNode.id) {
+        // Clicked same node: deselect
+        selectedId = null;
+      } else {
+        // Second click: attach or remove connection
+        let id1 = selectedId;
+        let id2 = clickedNode.id;
+
+        // Handle Bus topology PC-to-Backbone cable logic smoothly
+        const lvl = levels[activeLevel];
+        if (lvl.title.includes('Bus')) {
+          if (id1 !== 'b1' && id1 !== 'b2' && (id2 === 'b1' || id2 === 'b2')) {
+            // Keep b1 as canonical bus reference when attaching PCs
+            id2 = 'b1';
+          } else if (id2 !== 'b1' && id2 !== 'b2' && (id1 === 'b1' || id1 === 'b2')) {
+            id1 = 'b1';
+          }
+        }
+
+        const existingIndex = connections.findIndex(
+          c => (c[0] === id1 && c[1] === id2) || (c[0] === id2 && c[1] === id1)
+        );
+
+        if (removeMode) {
+          if (existingIndex !== -1) {
+            connections.splice(existingIndex, 1);
+            showToast('Cable removed!', 'warning');
+          } else {
+            showToast('No cable exists between these nodes!', 'error');
+          }
+        } else {
+          if (existingIndex !== -1) {
+            showToast('Cable already connected!', 'warning');
+          } else {
+            connections.push([id1, id2]);
+            showToast('Cable connected!', 'success');
+          }
+        }
+
+        selectedId = null;
+        renderTasks();
+      }
+
+      draw();
+    });
+
+    function startPacketSimulation() {
+      if (connections.length === 0) {
+        showToast('Please attach cables before running simulation!', 'error');
+        return;
+      }
+
+      isSimulating = true;
+      showToast('Simulating packet transmission along active cables...', 'info');
+
+      // Generate packets along active connection paths
+      const lvl = levels[activeLevel];
+      packets = [];
+
+      connections.forEach(([i1, i2]) => {
+        const n1 = lvl.nodes.find(n => n.id === i1);
+        const n2 = lvl.nodes.find(n => n.id === i2);
+        if (n1 && n2) {
+          const p1 = getCoords(n1);
+          const p2 = getCoords(n2);
+
+          // For Bus PC drop points
+          let targetP2 = { ...p2 };
+          if (lvl.title.includes('Bus') && n1.type === 'pc' && n2.type === 'backbone') {
+            targetP2.x = p1.x; targetP2.y = p2.y;
+          } else if (lvl.title.includes('Bus') && n2.type === 'pc' && n1.type === 'backbone') {
+            targetP2.x = p2.x; targetP2.y = p1.y;
+          }
+
+          packets.push({
+            p1: p1,
+            p2: targetP2,
+            progress: 0,
+            speed: 0.015 + Math.random() * 0.01,
+            x: p1.x,
+            y: p1.y
+          });
+        }
+      });
+
+      function animate() {
+        if (!isSimulating) return;
+
+        packets.forEach(p => {
+          p.progress += p.speed;
+          if (p.progress > 1) p.progress = 0; // Loop trajectory
+
+          p.x = p.p1.x + (p.p2.x - p.p1.x) * p.progress;
+          p.y = p.p1.y + (p.p2.y - p.p1.y) * p.progress;
+        });
+
+        draw();
+        animId = requestAnimationFrame(animate);
+      }
+
+      if (animId) cancelAnimationFrame(animId);
+      animate();
+    }
+
+    function checkNetwork() {
+      const lvl = levels[activeLevel];
+      let allPassed = true;
+
+      for (let req of lvl.required) {
+        let isMet = false;
+        if (lvl.title.includes('Bus') && (req[0] !== 'b1' || req[1] !== 'b2')) {
+          const pcId = req[0] === 'b1' ? req[1] : req[0];
+          isMet = isConn(pcId, 'b1') || isConn(pcId, 'b2');
+        } else {
+          isMet = isConn(req[0], req[1]);
+        }
+
+        if (!isMet) {
+          allPassed = false;
+          break;
+        }
+      }
+
+      if (allPassed) {
+        showToast(`🎉 Level Complete! Wonderful job assembling the ${lvl.title}!`, 'success');
+      } else {
+        showToast('⚠️ Some connections are missing. Check the tasks checklist on the left!', 'error');
+      }
+    }
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+
+      toast.innerText = msg;
+      toast.className = `absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-lg text-xs font-bold shadow-lg transition-all duration-200 pointer-events-none transform translate-y-0 opacity-100 z-50 `;
+
+      if (type === 'success') toast.classList.add('bg-emerald-600', 'text-white');
+      else if (type === 'error') toast.classList.add('bg-rose-600', 'text-white');
+      else if (type === 'warning') toast.classList.add('bg-amber-500', 'text-white');
+      else toast.classList.add('bg-slate-800', 'text-white');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(hideToast, 3500);
+    }
+
+    function hideToast() {
+      const toast = document.getElementById('toast');
+      if (toast) {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }
+    }
+
+    function updateRemoveButtonState() {
+      const btn = document.getElementById('btn-remove');
+      const hintTitle = document.getElementById('hint-title');
+      const hintDesc = document.getElementById('hint-desc');
+      const hintBox = document.getElementById('mode-hint');
+
+      if (removeMode) {
+        btn.classList.remove('bg-slate-100', 'text-slate-700');
+        btn.classList.add('bg-rose-600', 'text-white', 'hover:bg-rose-700');
+        hintBox.className = "bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-xs flex items-start gap-2 shadow-sm transition-all";
+        hintTitle.innerText = "Remove Cable Mode Active:";
+        hintDesc.innerText = "Click two connected nodes to detach the cable wire between them.";
+      } else {
+        btn.classList.remove('bg-rose-600', 'text-white', 'hover:bg-rose-700');
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+        hintBox.className = "bg-sky-50 border border-sky-200 text-sky-800 p-3 rounded-xl text-xs flex items-start gap-2 shadow-sm transition-all";
+        hintTitle.innerText = "How to connect cables:";
+        hintDesc.innerText = "Click on any device node, then click another device node to lay a cable between them.";
+      }
+    }
+
+    document.getElementById('btn-check').addEventListener('click', checkNetwork);
+    document.getElementById('btn-sim').addEventListener('click', startPacketSimulation);
+    
+    document.getElementById('btn-remove').addEventListener('click', () => {
+      removeMode = !removeMode;
+      selectedId = null;
+      updateRemoveButtonState();
+      draw();
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      connections = [];
+      selectedId = null;
+      packets = [];
+      isSimulating = false;
+      if (animId) cancelAnimationFrame(animId);
+      renderTasks();
+      draw();
+      showToast('Network reset successfully.', 'info');
+    });
+
+    // On initial window load start up level 1
+    window.onload = function() {
+      loadLevel(0);
+    };
+  </script>
+</body>
+</html>
